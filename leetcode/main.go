@@ -11,4 +11,7 @@ func main() {
 
 	fmt.Println("Contains duplicate")
 	hashMap.TestContainsDuplicate()
+
+	fmt.Println("Valid anagrams")
+	hashMap.TestValidAnagrams()
 }

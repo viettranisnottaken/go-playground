@@ -18,6 +18,9 @@ func main() {
 	//fmt.Println("Longest Consecutive Sequence")
 	//hashMap.TestLongestConsecutiveSequence()
 
-	fmt.Println("Valid Parentheses")
-	stack.TestValidParentheses()
+	//fmt.Println("Valid Parentheses")
+	//stack.TestValidParentheses()
+
+	fmt.Println("Min stack impl")
+	stack.TestMinStack()
 }

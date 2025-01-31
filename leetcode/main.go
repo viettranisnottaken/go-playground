@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"leetcode/stack"
+	"leetcode/twoPointer"
 )
 
 func main() {
@@ -21,6 +21,9 @@ func main() {
 	//fmt.Println("Valid Parentheses")
 	//stack.TestValidParentheses()
 
-	fmt.Println("Min stack impl")
-	stack.TestMinStack()
+	//fmt.Println("Min stack impl")
+	//stack.TestMinStack()
+
+	fmt.Println("Valid Palindrome")
+	twoPointer.TestValidPalindrome()
 }

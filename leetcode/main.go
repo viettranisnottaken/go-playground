@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"leetcode/twoPointer"
+	"leetcode/two_pointer"
 )
 
 func main() {
@@ -25,5 +25,5 @@ func main() {
 	//stack.TestMinStack()
 
 	fmt.Println("Valid Palindrome")
-	twoPointer.TestValidPalindrome()
+	two_pointer.TestValidPalindrome()
 }

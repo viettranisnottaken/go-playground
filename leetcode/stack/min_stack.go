@@ -2,11 +2,12 @@ package stack
 
 import (
 	"fmt"
+	ds "leetcode/data_structure"
 )
 
 type MinStack struct {
-	min   Stack[int]
-	stack Stack[int]
+	min   ds.Stack[int]
+	stack ds.Stack[int]
 }
 
 func NewMinStack() *MinStack {

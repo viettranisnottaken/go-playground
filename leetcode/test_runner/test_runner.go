@@ -1,4 +1,4 @@
-package testRunner
+package test_runner
 
 //type TestCase[TInput any, TExpect any] struct {
 //	input  TInput

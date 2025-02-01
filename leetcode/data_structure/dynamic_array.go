@@ -1,13 +1,13 @@
-package dataStructures
+package ds
 
 type IDynamicArray[T any] interface {
-	InsertFirst(value T)
-	InsertLast(value T)
-	InsertAt(value T, i int) bool
-	DeleteFirst() bool
-	DeleteLast() bool
-	DeleteAt(i int) bool
-	GetItem(i int) (T, bool)
+	insertFirst(value T)
+	insertLast(value T)
+	insertAt(value T, i int) bool
+	deleteFirst() bool
+	deleteLast() bool
+	deleteAt(i int) bool
+	getItem(i int) (T, bool)
 
 	grow()
 	shrink()
@@ -42,7 +42,7 @@ func NewDynamicArray[T any](values ...T) *DynamicArray[T] {
 	}
 }
 
-func (d *DynamicArray[T]) InsertFirst(value T) {
+func (d *DynamicArray[T]) insertFirst(value T) {
 	// check cap, then grow if needed
 	if d.currSize == d.capacity {
 		d.grow()
@@ -62,7 +62,7 @@ func (d *DynamicArray[T]) InsertFirst(value T) {
 	d.currSize++
 }
 
-func (d *DynamicArray[T]) InsertLast(value T) {
+func (d *DynamicArray[T]) insertLast(value T) {
 	// check cap, then grow if needed
 	if d.currSize == d.capacity {
 		d.grow()
@@ -75,7 +75,7 @@ func (d *DynamicArray[T]) InsertLast(value T) {
 	d.currSize++
 }
 
-func (d *DynamicArray[T]) InsertAt(value T, i int) bool {
+func (d *DynamicArray[T]) insertAt(value T, i int) bool {
 	// if insertion point is out of bound, return error
 	if d.currSize-1 < i {
 		return false
@@ -102,7 +102,7 @@ func (d *DynamicArray[T]) InsertAt(value T, i int) bool {
 	return true
 }
 
-func (d *DynamicArray[T]) DeleteFirst() bool {
+func (d *DynamicArray[T]) deleteFirst() bool {
 	// check if array is empty
 	if d.currSize == 0 {
 		return false
@@ -129,7 +129,7 @@ func (d *DynamicArray[T]) DeleteFirst() bool {
 	return true
 }
 
-func (d *DynamicArray[T]) DeleteLast() bool {
+func (d *DynamicArray[T]) deleteLast() bool {
 	// check if array is empty
 	if d.currSize == 0 {
 		return false
@@ -149,7 +149,7 @@ func (d *DynamicArray[T]) DeleteLast() bool {
 	return true
 }
 
-func (d *DynamicArray[T]) DeleteAt(i int) bool {
+func (d *DynamicArray[T]) deleteAt(i int) bool {
 	// check if array is empty
 	if d.currSize == 0 {
 		return false
@@ -176,7 +176,7 @@ func (d *DynamicArray[T]) DeleteAt(i int) bool {
 	return true
 }
 
-func (d *DynamicArray[T]) GetItem(i int) (T, bool) {
+func (d *DynamicArray[T]) getItem(i int) (T, bool) {
 	// check if i is out of bound
 	if d.currSize-1 < i {
 		var zero T

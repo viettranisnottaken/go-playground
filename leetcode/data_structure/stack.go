@@ -1,4 +1,4 @@
-package dataStructures
+package ds
 
 import "fmt"
 

@@ -1,6 +1,9 @@
 package stack
 
-import "fmt"
+import (
+	"fmt"
+	ds "leetcode/data_structure"
+)
 
 func validParentheses(str string) bool {
 	// idea: push open bracket to stack, if encounter a close bracket, pop a corresponding open one
@@ -17,7 +20,7 @@ func validParentheses(str string) bool {
 		'}': '{',
 	}
 
-	stack := NewStack[rune]()
+	stack := ds.NewStack[rune]()
 
 	for _, char := range str {
 		if bracket, isExist := bracketMap[char]; isExist {

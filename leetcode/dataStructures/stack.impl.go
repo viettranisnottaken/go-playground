@@ -1,6 +1,13 @@
-package stack
+package dataStructures
 
 import "fmt"
+
+type IStack[T any] interface {
+	IsEmpty() bool
+	Push(el T) T
+	Pop() (T, bool)
+	Peek() (T, bool)
+}
 
 type Stack[T any] []T
 

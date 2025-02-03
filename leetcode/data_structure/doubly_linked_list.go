@@ -25,6 +25,10 @@ type IDoublyLinkedList[T any] interface {
 	GetItem(i int) (*Node[T], bool)
 	UpdateItem(i int, value T) bool
 	IsEmpty() bool
+
+	// value_n_from_end(n) - returns the value of the node at the nth position from the end of the list
+	// reverse() - reverses the list
+	// delete, insert multiple
 }
 
 func newNode[T any](value T, next *Node[T], prev *Node[T]) *Node[T] {

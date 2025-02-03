@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"leetcode/two_pointer"
+	ds "leetcode/data_structure"
 )
 
 func main() {
@@ -24,6 +24,11 @@ func main() {
 	//fmt.Println("Min stack impl")
 	//stack.TestMinStack()
 
-	fmt.Println("Valid Palindrome")
-	two_pointer.TestValidPalindrome()
+	//fmt.Println("Valid Palindrome")
+	//two_pointer.TestValidPalindrome()
+
+	fmt.Println("Doubly linked list")
+	list := ds.NewDoublyLinkedList[int](1, 2, 3)
+	list.InsertLast(9)
+	fmt.Println(list, list.Head.Next.Next.Next.Next)
 }

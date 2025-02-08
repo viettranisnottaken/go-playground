@@ -110,7 +110,7 @@ func (d *DynamicArray[T]) DeleteFirst() bool {
 	}
 
 	// check cap, then shrink if needed
-	if d.CurrSize <= d.Capacity/4 {
+	if d.CurrSize <= d.Capacity/4 && d.Capacity > 4 {
 		d.shrink()
 	}
 
@@ -122,7 +122,9 @@ func (d *DynamicArray[T]) DeleteFirst() bool {
 	}
 
 	// delete last Value
-	d.Items = d.Items[:d.CurrSize-1]
+	//d.Items = d.Items[:d.CurrSize-1]
+	var zero T
+	d.Items[d.CurrSize-1] = zero
 
 	// update CurrSize
 	d.CurrSize--
@@ -137,12 +139,14 @@ func (d *DynamicArray[T]) DeleteLast() bool {
 	}
 
 	// check cap, then shrink if needed
-	if d.CurrSize <= d.Capacity/4 {
+	if d.CurrSize <= d.Capacity/4 && d.Capacity > 4 {
 		d.shrink()
 	}
 
 	// delete last Value
-	d.Items = d.Items[:d.CurrSize-1]
+	//d.Items = d.Items[:d.CurrSize-1]
+	var zero T
+	d.Items[d.CurrSize-1] = zero
 
 	// update CurrSize
 	d.CurrSize--
@@ -157,7 +161,7 @@ func (d *DynamicArray[T]) DeleteAt(i int) bool {
 	}
 
 	// check cap, then shrink if needed
-	if d.CurrSize <= d.Capacity/4 {
+	if d.CurrSize <= d.Capacity/4 && d.Capacity > 4 {
 		d.shrink()
 	}
 
@@ -169,7 +173,9 @@ func (d *DynamicArray[T]) DeleteAt(i int) bool {
 	}
 
 	// delete last Value
-	d.Items = d.Items[:d.CurrSize-1]
+	//d.Items = d.Items[:d.CurrSize-1]
+	var zero T
+	d.Items[d.CurrSize-1] = zero
 
 	// update CurrSize
 	d.CurrSize--
@@ -198,8 +204,8 @@ func (d *DynamicArray[T]) grow() {
 	newArr := make([]T, newCap)
 
 	// move elements over to new arr
-	for i, v := range d.Items {
-		newArr[i] = v
+	for i := 0; i < d.CurrSize; i++ {
+		newArr[i] = d.Items[i]
 	}
 
 	// assign new array to dynamic array
@@ -215,8 +221,8 @@ func (d *DynamicArray[T]) shrink() {
 	newArr := make([]T, newCap)
 
 	// move elements over to new arr
-	for i, v := range d.Items {
-		newArr[i] = v
+	for i := 0; i < d.CurrSize; i++ {
+		newArr[i] = d.Items[i]
 	}
 
 	// assign new array to dynamic array

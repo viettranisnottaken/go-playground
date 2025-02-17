@@ -36,7 +36,7 @@ func TestBinarySearchImpl(t *testing.T) {
 			got := BinarySearchImpl(tt.inputs.nums, tt.inputs.target)
 
 			if got != tt.expect {
-				t.Errorf("TwoIntegerSum2(%v, %d) = %d; expected %d", tt.inputs.nums, tt.inputs.target, got, tt.expect)
+				t.Errorf("BinarySearchImpl(%v, %d) = %d; expected %d", tt.inputs.nums, tt.inputs.target, got, tt.expect)
 			}
 		})
 	}

@@ -1,29 +1,24 @@
 package main
 
-import (
-	"fmt"
-	"reflect"
-)
+import "log"
 
-type Comic struct {
-	Universe string
+func IsClosed[T any](c chan T) bool {
+	select {
+	case <-c:
+		return true
+	default:
+	}
+	return false
 }
 
 func main() {
-	c := Comic{"123"}
-	cPtr := &c
+	ch := make(chan int)
 
-	fmt.Println(cPtr.Universe)
+	//close(ch)
 
-	cPtr.Universe = "345"
+	//val := <-ch
 
-	fmt.Println(cPtr.Universe)
+	log.Println(IsClosed(ch))
 
-	reflection := reflect.ValueOf(cPtr).Elem()
-
-	fmt.Println(reflection.FieldByName("Universe"))
-
-	reflection.FieldByName("Universe").SetString("Uni")
-
-	fmt.Println(reflection.FieldByName("Universe"))
+	//log.Println(val)
 }

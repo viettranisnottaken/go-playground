@@ -1,4 +1,4 @@
-package main
+package concurrency
 
 import (
 	"log"
@@ -51,8 +51,4 @@ func RunDbScript() {
 	wg.Wait()
 
 	log.Printf("Everything done %v", dict)
-}
-
-func main() {
-	RunDbScript()
 }

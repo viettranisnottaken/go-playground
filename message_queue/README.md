@@ -21,3 +21,7 @@
 6. Cluster Setup
    - For a real production system, you’d look into distributing queues across multiple servers and ensuring data replication or consistent hashing to scale horizontally.
 
+7. Limit producer
+   - We don't want infinite messages waiting
+
+8. Delete stale topics

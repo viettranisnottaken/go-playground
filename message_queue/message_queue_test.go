@@ -12,13 +12,13 @@ import (
 	"time"
 )
 
-func produce(broker *Broker[int]) {
+func produce(broker *Broker[int], topic Topic) {
 	for i := 0; ; i++ {
 		time.Sleep(time.Second * 1)
 
 		go func() {
-			log.Println("Produce", i)
-			err := broker.Produce("topic", i)
+			log.Println("Produce", topic, i)
+			err := broker.Produce(topic, i)
 
 			if err != nil {
 				log.Fatal(err)
@@ -27,19 +27,33 @@ func produce(broker *Broker[int]) {
 	}
 }
 
-func consume(broker *Broker[int]) {
+func consumeOnce(broker *Broker[int], topic Topic) {
 	for {
 		time.Sleep(time.Second * 2)
 
 		go func() {
-			msg, _ := broker.Consume("topic")
+			msg, _ := broker.ConsumeOnce(topic)
 
-			log.Println("Consume", msg)
+			log.Println("Consume", topic, msg)
 		}()
 	}
 }
 
-func TestMessageQueue(t *testing.T) {
+func consume(broker *Broker[int], topic Topic) {
+	channel, unsub := broker.Consume(topic)
+
+	go func() {
+		time.Sleep(4 * time.Second)
+
+		unsub()
+	}()
+
+	for msg := range channel {
+		log.Println("Consume", topic, msg)
+	}
+}
+
+func TestMessageQueueConsumeOnce(t *testing.T) {
 	broker := NewBroker[int]()
 	sig, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGKILL)
 	defer stop()
@@ -47,8 +61,30 @@ func TestMessageQueue(t *testing.T) {
 	withTimeout, cancel := context.WithTimeout(context.Background(), time.Second*11)
 	defer cancel()
 
-	go produce(broker)
-	go consume(broker)
+	go produce(broker, "topic")
+	go consumeOnce(broker, "topic")
+
+	select {
+	case <-withTimeout.Done():
+	case <-sig.Done():
+	}
+}
+
+func TestMessageQueueConsume(t *testing.T) {
+	broker := NewBroker[int]()
+	sig, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGKILL)
+	defer stop()
+
+	withTimeout, cancel := context.WithTimeout(context.Background(), time.Second*11)
+	defer cancel()
+
+	go produce(broker, "topic")
+	go produce(broker, "topic")
+	go produce(broker, "topic")
+
+	go consume(broker, "topic")
+	//go consume(broker, "topic2")
+	//go consume(broker, "topic3")
 
 	select {
 	case <-withTimeout.Done():
@@ -71,7 +107,7 @@ func produceWithTopic(wg *sync.WaitGroup, broker *Broker[string], topic Topic, p
 func consumeWithTopic(wg *sync.WaitGroup, broker *Broker[string], topic Topic) (*Message[string], error) {
 	defer wg.Done()
 
-	msg, err := broker.Consume(topic)
+	msg, err := broker.ConsumeOnce(topic)
 
 	if err != nil {
 		return nil, err

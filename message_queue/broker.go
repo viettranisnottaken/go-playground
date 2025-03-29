@@ -22,7 +22,6 @@ func NewBroker[T any]() *Broker[T] {
 
 func (b *Broker[T]) Produce(topic Topic, payload T) error {
 	b.mu.Lock()
-	defer b.mu.Unlock()
 
 	_, ok := b.queues[topic]
 
@@ -30,15 +29,17 @@ func (b *Broker[T]) Produce(topic Topic, payload T) error {
 		b.queues[topic] = NewQueue[T]()
 	}
 
+	b.mu.Unlock()
+
 	err := b.queues[topic].Enqueue(payload)
 
 	return err
 }
 
-func (b *Broker[T]) Consume(topic Topic) (<-chan *Message[T], func()) {
+func (b *Broker[T]) Consume(topic Topic, handler func(msg *Message[T])) (unsub func()) {
 	channel := make(chan *Message[T], 10)
 	done := make(chan struct{})
-	unsub := func() {
+	unsub = func() {
 		close(done)
 	}
 
@@ -61,7 +62,13 @@ func (b *Broker[T]) Consume(topic Topic) (<-chan *Message[T], func()) {
 		}
 	}()
 
-	return channel, unsub
+	go func() {
+		for msg := range channel {
+			handler(msg)
+		}
+	}()
+
+	return unsub
 }
 
 func (b *Broker[T]) ConsumeOnce(topic Topic) (*Message[T], error) {
@@ -75,6 +82,55 @@ func (b *Broker[T]) ConsumeOnce(topic Topic) (*Message[T], error) {
 	}
 
 	return queue.Dequeue(), nil
+}
+
+func (b *Broker[T]) Publish(topic Topic, payload T) error {
+	b.mu.Lock()
+
+	_, ok := b.queues[topic]
+
+	if !ok {
+		b.queues[topic] = NewQueue[T]()
+	}
+
+	b.mu.Unlock()
+
+	err := b.queues[topic].Publish(payload)
+
+	return err
+}
+
+func (b *Broker[T]) Subscribe(topic Topic, handler *func(msg *Message[T])) (unsub func()) {
+	channel := make(chan *Message[T], 10)
+	done := make(chan struct{})
+
+	b.mu.Lock()
+
+	if _, ok := b.queues[topic]; !ok {
+		b.queues[topic] = NewQueue[T]()
+	}
+
+	queue := b.queues[topic]
+	b.mu.Unlock()
+
+	queue.AddSubscriber(handler, *handler)
+
+	go func() {
+		defer close(channel)
+
+		for {
+			select {
+			case <-done:
+				return
+			case channel <- queue.Dequeue():
+			}
+		}
+	}()
+
+	return func() {
+		close(done)
+		queue.RemoveSubscriber(handler)
+	}
 }
 
 func (b *Broker[T]) Shutdown() {

@@ -2,6 +2,7 @@ package message_queue
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os/signal"
 	"reflect"
@@ -40,17 +41,15 @@ func consumeOnce(broker *Broker[int], topic Topic) {
 }
 
 func consume(broker *Broker[int], topic Topic) {
-	channel, unsub := broker.Consume(topic)
+	unsub := broker.Consume(topic, func(msg *Message[int]) {
+		log.Println("Consume", topic, msg)
+	})
 
 	go func() {
 		time.Sleep(4 * time.Second)
 
 		unsub()
 	}()
-
-	for msg := range channel {
-		log.Println("Consume", topic, msg)
-	}
 }
 
 func TestMessageQueueConsumeOnce(t *testing.T) {
@@ -83,8 +82,8 @@ func TestMessageQueueConsume(t *testing.T) {
 	go produce(broker, "topic")
 
 	go consume(broker, "topic")
-	//go consume(broker, "topic2")
-	//go consume(broker, "topic3")
+	//go consume(broker, "topic")
+	//go consume(broker, "topic")
 
 	select {
 	case <-withTimeout.Done():
@@ -222,4 +221,79 @@ func TestBrokerWithTopic(t *testing.T) {
 
 	broker2 := NewBroker[string]()
 	case2(broker2, t)
+}
+
+func publish(wg *sync.WaitGroup, broker *Broker[string], topic Topic, payload string) {
+	defer wg.Done()
+
+	err := broker.Publish(topic, payload)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func subscribe(wg *sync.WaitGroup, subCh chan *Message[string], broker *Broker[string], topic Topic) {
+	defer wg.Done()
+
+	handler := func(msg *Message[string]) {
+		log.Println("subscribe", msg)
+		subCh <- msg
+	}
+
+	unsub := broker.Subscribe(topic, &handler)
+
+	go func() {
+		time.Sleep(2 * time.Second)
+
+		unsub()
+	}()
+}
+
+func TestSubscribe(t *testing.T) {
+	//withTimeout, cancel := context.WithTimeout(context.Background(), 6*time.Second)
+	//defer cancel()
+	//
+	//sigint, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGKILL)
+	//defer stop()
+
+	var wg sync.WaitGroup
+
+	broker := NewBroker[string]()
+	subCh := make(chan *Message[string], 20)
+
+	wg.Add(3)
+	go subscribe(&wg, subCh, broker, "topic")
+	go subscribe(&wg, subCh, broker, "topic")
+	go subscribe(&wg, subCh, broker, "topic")
+	wg.Wait()
+
+	for i := 0; i < 4; i++ {
+		time.Sleep(time.Millisecond * 500)
+		wg.Add(1)
+		go publish(&wg, broker, "topic", fmt.Sprintf("payload %d", i))
+	}
+	wg.Wait()
+
+	withSubTimeout, subCancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer subCancel()
+
+	go func() {
+		<-withSubTimeout.Done()
+
+		close(subCh)
+	}()
+
+	res := make([]Message[string], 0)
+	for msg := range subCh {
+		res = append(res, *msg)
+	}
+
+	if len(res) != 9 {
+		t.Errorf("Expected to get 9 values from subscription, instead got %d", len(res))
+	}
+
+	//select {
+	//case <-withTimeout.Done():
+	//case <-sigint.Done():
+	//}
 }
